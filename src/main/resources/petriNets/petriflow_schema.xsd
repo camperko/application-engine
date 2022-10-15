@@ -48,6 +48,7 @@
             <xs:element type="remote" name="remote" minOccurs="0"/>
             <xs:element type="xs:int" name="length" minOccurs="0"/>
             <xs:element type="allowedNets" name="allowedNets" minOccurs="0"/>
+            <xs:element type="xs:boolean" name="lockable" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute type="data_type" name="type" use="required"/>
         <xs:attribute type="xs:boolean" name="immediate"/>
@@ -86,19 +87,7 @@
             <xs:element type="nonNegativeInteger" name="x"/>
             <xs:element type="nonNegativeInteger" name="y"/>
             <xs:element type="i18nStringType" name="label"/>
-            <xs:element name="layout" minOccurs="0">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element type="nonNegativeInteger" name="cols" minOccurs="0"/>
-                        <xs:element type="nonNegativeInteger" name="rows" minOccurs="0"/>
-                        <xs:element type="nonNegativeInteger" name="offset" minOccurs="0"/>
-                        <xs:element name="fieldAlignment" type="fieldAlignment" minOccurs="0"/>
-                        <xs:element type="hideEmptyRows" name="hideEmptyRows" minOccurs="0"/>
-                        <xs:element type="compactDirection" name="compactDirection" minOccurs="0"/>
-                    </xs:sequence>
-                    <xs:attribute name="type" type="layoutType"/>
-                </xs:complexType>
-            </xs:element>
+            <xs:element type="transitionLayout" name="layout" minOccurs="0"/>
             <xs:element type="xs:string" name="icon" minOccurs="0"/>
             <xs:element type="nonNegativeInteger" name="priority" minOccurs="0"/>
             <xs:element type="assignPolicy" name="assignPolicy" minOccurs="0"/>
@@ -115,7 +104,20 @@
             <xs:element type="dataRef" name="dataRef" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="dataGroup" name="dataGroup" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="event" name="event" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element type="xs:boolean" name="transactional" minOccurs="0"/>
+            <xs:element type="xs:boolean" name="lockable" minOccurs="0"/>
         </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="transitionLayout">
+        <xs:sequence>
+            <xs:element type="nonNegativeInteger" name="cols" minOccurs="0"/>
+            <xs:element type="nonNegativeInteger" name="rows" minOccurs="0"/>
+            <xs:element type="nonNegativeInteger" name="offset" minOccurs="0"/>
+            <xs:element name="fieldAlignment" type="fieldAlignment" minOccurs="0"/>
+            <xs:element type="hideEmptyRows" name="hideEmptyRows" minOccurs="0"/>
+            <xs:element type="compactDirection" name="compactDirection" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="type" type="layoutType"/>
     </xs:complexType>
     <xs:complexType name="place">
         <xs:sequence>
@@ -203,10 +205,10 @@
     </xs:element>
     <xs:complexType name="documentType">
         <xs:sequence>
-            <xs:element type="xs:string" name="id" minOccurs="1"/>
+            <xs:element type="xs:string" name="id"/>
             <xs:element type="xs:string" name="version" minOccurs="0"/>
-            <xs:element type="initials" name="initials" minOccurs="1"/>
-            <xs:element type="i18nStringType" name="title" minOccurs="1"/>
+            <xs:element type="initials" name="initials"/>
+            <xs:element type="i18nStringType" name="title"/>
             <xs:element type="xs:string" name="icon" minOccurs="0"/>
             <xs:element type="xs:boolean" name="defaultRole" minOccurs="0" default="true"/>
             <xs:element type="xs:boolean" name="anonymousRole" minOccurs="0" default="true"/>
@@ -437,6 +439,7 @@
             <xs:element name="behavior" type="behavior" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="action" name="action" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element type="actionRef" name="actionRef" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element type="xs:boolean" name="lockable" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="caseLogic">

@@ -69,6 +69,8 @@ abstract class Field<T> extends Imported {
 
     protected List<Validation> validations
 
+    private Boolean lockable
+
     @Transient
     protected String parentTaskId
 
@@ -262,6 +264,14 @@ abstract class Field<T> extends Imported {
         this.validations = validations
     }
 
+    Boolean getLockable() {
+        return lockable
+    }
+
+    void setLockable(Boolean lockable) {
+        this.lockable = lockable
+    }
+
     void clearValue() {
         setValue(null)
     }
@@ -347,6 +357,7 @@ abstract class Field<T> extends Imported {
         clone.validations = this.validations?.collect { it.clone() }
         clone.defaultValue = this.defaultValue
         clone.initExpression = this.initExpression
+        clone.lockable = this.lockable
     }
 
     abstract Field clone()

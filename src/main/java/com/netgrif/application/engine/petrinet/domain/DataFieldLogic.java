@@ -33,19 +33,26 @@ public class DataFieldLogic {
     @Setter
     private Component component;
 
+    @Getter
+    @Setter
+    private Boolean lockable;
+
     public DataFieldLogic() {
         this.behavior = new HashSet<>();
         this.events = new HashMap<>();
         this.layout = new FieldLayout();
     }
 
-    public DataFieldLogic(Set<FieldBehavior> behavior, Map<DataEventType, DataEvent> events, FieldLayout layout, Component component) {
+    public DataFieldLogic(Set<FieldBehavior> behavior, Map<DataEventType, DataEvent> events, FieldLayout layout,
+                          Component component, Boolean lockable) {
         this();
         this.behavior.addAll(behavior);
         this.events = events;
         this.layout = layout;
         if (component != null)
             this.component = component;
+        if (lockable != null)
+            this.lockable = lockable;
     }
 
     public ObjectNode applyBehavior(ObjectNode jsonNode) {
