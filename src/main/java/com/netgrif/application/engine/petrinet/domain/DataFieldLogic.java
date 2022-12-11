@@ -37,6 +37,10 @@ public class DataFieldLogic {
     @Setter
     private Boolean lockable;
 
+    @Getter
+    @Setter
+    private Boolean transactional;
+
     public DataFieldLogic() {
         this.behavior = new HashSet<>();
         this.events = new HashMap<>();
@@ -44,7 +48,7 @@ public class DataFieldLogic {
     }
 
     public DataFieldLogic(Set<FieldBehavior> behavior, Map<DataEventType, DataEvent> events, FieldLayout layout,
-                          Component component, Boolean lockable) {
+                          Component component, Boolean lockable, Boolean transactional) {
         this();
         this.behavior.addAll(behavior);
         this.events = events;
@@ -53,6 +57,8 @@ public class DataFieldLogic {
             this.component = component;
         if (lockable != null)
             this.lockable = lockable;
+        if (transactional != null)
+            this.transactional = transactional;
     }
 
     public ObjectNode applyBehavior(ObjectNode jsonNode) {

@@ -781,7 +781,7 @@ public class Importer {
                 logic.getBehavior().forEach(b -> behavior.add(FieldBehavior.fromString(b)));
             }
 
-            transition.addDataSet(fieldId, behavior, null, null, null, logic.isLockable());
+            transition.addDataSet(fieldId, behavior, null, null, null, logic.isLockable(), logic.isTransactional());
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("Wrong dataRef id [" + dataRef.getId() + "] on transition [" + transition.getTitle() + "]", e);
         }
@@ -812,7 +812,7 @@ public class Importer {
             }
 
             FieldLayout fieldLayout = new FieldLayout(layout.getX(), layout.getY(), layout.getRows(), layout.getCols(), layout.getOffset(), template, appearance, alignment);
-            transition.addDataSet(fieldId, null, null, fieldLayout, null, null);
+            transition.addDataSet(fieldId, null, null, fieldLayout, null, null, null);
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("Wrong dataRef id [" + dataRef.getId() + "] on transition [" + transition.getTitle() + "]", e);
         }
@@ -826,7 +826,7 @@ public class Importer {
             component = getField(dataRef.getId()).getComponent();
         else
             component = componentFactory.buildComponent(dataRef.getComponent(), this, getField(dataRef.getId()));
-        transition.addDataSet(fieldId, null, null, null, component, null);
+        transition.addDataSet(fieldId, null, null, null, component, null, null);
     }
 
     @Transactional

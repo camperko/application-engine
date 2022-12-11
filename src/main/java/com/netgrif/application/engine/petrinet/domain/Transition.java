@@ -112,15 +112,16 @@ public class Transition extends Node {
     }
 
     public void addDataSet(String field, Set<FieldBehavior> behavior, Map<DataEventType, DataEvent> events,
-                           FieldLayout layout, Component component, Boolean lockable){
+                           FieldLayout layout, Component component, Boolean lockable, Boolean transactional){
         if(dataSet.containsKey(field) && dataSet.get(field) != null){
             if(behavior != null) dataSet.get(field).getBehavior().addAll(behavior);
             if(events != null) dataSet.get(field).setEvents(events);
             if(layout != null) dataSet.get(field).setLayout(layout);
             if(component != null) dataSet.get(field).setComponent(component);
             if(lockable != null) dataSet.get(field).setLockable(lockable);
+            if(transactional != null) dataSet.get(field).setTransactional(transactional);
         } else {
-            dataSet.put(field, new DataFieldLogic(behavior, events, layout, component, lockable));
+            dataSet.put(field, new DataFieldLogic(behavior, events, layout, component, lockable, transactional));
         }
     }
 

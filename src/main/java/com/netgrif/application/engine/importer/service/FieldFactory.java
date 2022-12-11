@@ -110,6 +110,7 @@ public final class FieldFactory {
         field.setImportId(data.getId());
         field.setImmediate(data.isImmediate());
         field.setLockable(data.isLockable());
+        field.setTransactional(data.isTransactional());
         if (data.getLength() != null) {
             field.setLength(data.getLength());
         }
