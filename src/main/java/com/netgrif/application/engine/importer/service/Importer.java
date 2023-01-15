@@ -34,9 +34,11 @@ import com.netgrif.application.engine.petrinet.service.interfaces.IPetriNetServi
 import com.netgrif.application.engine.petrinet.service.interfaces.IProcessRoleService;
 import com.netgrif.application.engine.workflow.domain.FileStorageConfiguration;
 import com.netgrif.application.engine.workflow.domain.triggers.Trigger;
+import com.netgrif.application.engine.workflow.service.PreprocessorRegistrationService;
 import com.netgrif.application.engine.workflow.service.interfaces.IFieldActionsCacheService;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -123,11 +125,17 @@ public class Importer {
     @Autowired
     private ILogicValidator logicValidator;
 
+    @Autowired
+    private PreprocessorRegistrationService preprocessorRegistrationService;
+
     @Transactional
-    public Optional<PetriNet> importPetriNet(InputStream xml) throws MissingPetriNetMetaDataException, MissingIconKeyException {
+    public Optional<PetriNet> importPetriNet(InputStream xml) throws MissingPetriNetMetaDataException, MissingIconKeyException, IOException {
         try {
             initialize();
-            unmarshallXml(xml);
+            ByteArrayOutputStream xmlCopy = new ByteArrayOutputStream();
+            IOUtils.copy(xml, xmlCopy);
+            unmarshallXml(new ByteArrayInputStream(xmlCopy.toByteArray()));
+            document = this.preprocessorRegistrationService.doPreprocessing(document, new ByteArrayInputStream(xmlCopy.toByteArray()));
             return createPetriNet();
         } catch (JAXBException e) {
             log.error("Importing Petri net failed: ", e);
@@ -136,7 +144,7 @@ public class Importer {
     }
 
     @Transactional
-    public Optional<PetriNet> importPetriNet(File xml) throws MissingPetriNetMetaDataException, MissingIconKeyException {
+    public Optional<PetriNet> importPetriNet(File xml) throws MissingPetriNetMetaDataException, MissingIconKeyException, IOException {
         try {
             return importPetriNet(new FileInputStream(xml));
         } catch (FileNotFoundException e) {
