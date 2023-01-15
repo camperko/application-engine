@@ -55,12 +55,6 @@ public class PreprocessorRegistrationService {
                     responseData.getBody().getAddress(), HttpMethod.POST, new HttpEntity<>(requestMap, headers), String.class
             );
 
-//            MultiValueMap<String, Object> requestWrapper = new LinkedMultiValueMap<>();
-//            requestWrapper.add("file", new MultipartFileResource(content, PREPROCESSING_FILE_NAME));
-//            HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(requestWrapper, headers);
-//            ObjectNode response = this.restTemplate.postForObject(responseData.getBody().getAddress(), requestWrapper, ObjectNode.class);
-//            ResponseEntity<ObjectNode> response = restTemplate.exchange(responseData.getBody().getAddress(), HttpMethod.POST, entity, ObjectNode.class);
-
             // TODO: parse document from response (change response to xml file)
             return doc;
         }
