@@ -114,8 +114,6 @@ public final class FieldFactory {
         field.setName(importer.toI18NString(data.getTitle()));
         field.setImportId(data.getId());
         field.setImmediate(data.isImmediate());
-        field.setLockable(data.isLockable());
-        field.setTransactional(data.isTransactional());
         if (data.getLength() != null) {
             field.setLength(data.getLength());
         }

@@ -48,8 +48,6 @@
             <xs:element type="remote" name="remote" minOccurs="0"/>
             <xs:element type="xs:int" name="length" minOccurs="0"/>
             <xs:element type="allowedNets" name="allowedNets" minOccurs="0"/>
-            <xs:element type="xs:boolean" name="lockable" minOccurs="0"/>
-            <xs:element type="xs:boolean" name="transactional" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute type="data_type" name="type" use="required"/>
         <xs:attribute type="xs:boolean" name="immediate"/>
@@ -105,8 +103,6 @@
             <xs:element type="dataRef" name="dataRef" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="dataGroup" name="dataGroup" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="event" name="event" maxOccurs="unbounded" minOccurs="0"/>
-            <xs:element type="xs:boolean" name="transactional" minOccurs="0"/>
-            <xs:element type="xs:boolean" name="lockable" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="transitionLayout">
@@ -442,8 +438,6 @@
             <xs:element name="behavior" type="behavior" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="action" name="action" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element type="actionRef" name="actionRef" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element type="xs:boolean" name="lockable" minOccurs="0"/>
-            <xs:element type="xs:boolean" name="transactional" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="caseLogic">
