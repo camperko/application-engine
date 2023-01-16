@@ -1,4 +1,4 @@
-package com.netgrif.application.engine.workflow.web.responsebodies;
+package com.netgrif.application.engine.utils.preprocessing;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
