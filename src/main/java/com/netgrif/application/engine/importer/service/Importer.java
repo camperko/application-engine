@@ -34,7 +34,7 @@ import com.netgrif.application.engine.petrinet.service.ArcFactory;
 import com.netgrif.application.engine.petrinet.service.interfaces.IPetriNetService;
 import com.netgrif.application.engine.workflow.domain.FileStorageConfiguration;
 import com.netgrif.application.engine.workflow.domain.triggers.Trigger;
-import com.netgrif.application.engine.workflow.service.PreprocessorRegistrationService;
+import com.netgrif.application.engine.utils.preprocessing.PreprocessorRegistrationService;
 import com.netgrif.application.engine.workflow.service.interfaces.IFieldActionsCacheService;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

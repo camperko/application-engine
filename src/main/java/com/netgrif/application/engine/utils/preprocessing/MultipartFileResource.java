@@ -1,4 +1,4 @@
-package com.netgrif.application.engine.workflow.web.requestbodies;
+package com.netgrif.application.engine.utils.preprocessing;
 
 import org.springframework.core.io.ByteArrayResource;
 
