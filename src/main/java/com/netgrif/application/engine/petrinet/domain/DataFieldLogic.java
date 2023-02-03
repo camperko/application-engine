@@ -39,8 +39,7 @@ public class DataFieldLogic {
         this.layout = new FieldLayout();
     }
 
-    public DataFieldLogic(Set<FieldBehavior> behavior, Map<DataEventType, DataEvent> events, FieldLayout layout,
-                          Component component) {
+    public DataFieldLogic(Set<FieldBehavior> behavior, Map<DataEventType, DataEvent> events, FieldLayout layout, Component component) {
         this();
         this.behavior.addAll(behavior);
         this.events = events;
