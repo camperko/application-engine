@@ -58,6 +58,7 @@ import com.netgrif.application.engine.workflow.service.interfaces.*
 import com.netgrif.application.engine.workflow.web.responsebodies.MessageResource
 import com.netgrif.application.engine.workflow.web.responsebodies.TaskReference
 import com.querydsl.core.types.Predicate
+import com.querydsl.core.types.dsl.ComparableExpression
 import groovy.transform.NamedVariant
 import org.bson.types.ObjectId
 import org.quartz.Scheduler
@@ -73,6 +74,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 
+import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.util.stream.Collectors
 
@@ -1863,6 +1865,72 @@ class ActionDelegate {
 
     I18nString i18n(String value, Map<String, String> translations) {
         return new I18nString(value, translations)
+    }
+
+    def sqlValueResolver(PetriNet petriNetObject, String fieldId, def value) {
+        def className = petriNetObject.getDataSet().get(fieldId).getMetaClass().toString()
+        if (className.contains("Boolean")) {
+            if (value == 'TRUE' || value == true || value == 'true' || value == 't' || value == '1' || value == 'y' || value == 'yes') {
+                return true;
+            }
+            return false;
+        } else if (className.contains("DateTime")) {
+            def formats = ["yyyy-MM-dd hh:mm:ss", "yyyy/MM/dd hh:mm:ss", "yyyyMMdd hh:mm:ss", "yyyy.MM.dd hh:mm:ss",
+                                         "yyyy-MM-dd hh:mm:ss.SSS", "yyyy/MM/dd hh:mm:ss.SSS", "yyyyMMdd hh:mm:ss.SSS", "yyyy.MM.dd hh:mm:ss.SSS",
+                                         "yyyy-MM-dd'T'hh:mm:ss", "yyyy/MM/dd'T'hh:mm:ss", "yyyyMMdd'T'hh:mm:ss", "yyyy.MM.dd'T'hh:mm:ss",
+                                         "yyyy-MM-dd'T'hh:mm:ss.SSS", "yyyy/MM/dd'T'hh:mm:ss.SSS", "yyyyMMdd'T'hh:mm:ss.SSS", "yyyy.MM.dd'T'hh:mm:ss.SSS",
+                                         "yyyy-MM-dd'T'hh:mm:ss'Z'", "yyyy/MM/dd'T'hh:mm:ss'Z'", "yyyyMMdd'T'hh:mm:ss'Z'", "yyyy.MM.dd'T'hh:mm:ss'Z'",
+                                         "yyyy-MM-dd'T'hh:mm:ss.SSS'Z'", "yyyy/MM/dd'T'hh:mm:ss.SSS'Z'", "yyyyMMdd'T'hh:mm:ss.SSS'Z'", "yyyy.MM.dd'T'hh:mm:ss.SSS'Z'",
+                                         "dd-MM-yyyy hh:mm:ss", "dd/MM/yyyy hh:mm:ss", "dd.MM.yyyy hh:mm:ss",
+                                         "dd-MM-yyyy hh:mm:ss.SSS", "dd/MM/yyyy hh:mm:ss.SSS", "dd.MM.yyyy hh:mm:ss.SSS",
+                                         "dd-MM-yyyy'T'hh:mm:ss", "dd/MM/yyyy'T'hh:mm:ss", "dd.MM.yyyy'T'hh:mm:ss",
+                                         "dd-MM-yyyy'T'hh:mm:ss.SSS", "dd/MM/yyyy'T'hh:mm:ss.SSS", "dd.MM.yyyy'T'hh:mm:ss.SSS",
+                                         "dd-MM-yyyy'T'hh:mm:ss'Z'", "dd/MM/yyyy'T'hh:mm:ss'Z'", "dd.MM.yyyy'T'hh:mm:ss'Z'",
+                                         "dd-MM-yyyy'T'hh:mm:ss.SSS'Z'", "dd/MM/yyyy'T'hh:mm:ss.SSS'Z'", "dd.MM.yyyy'T'hh:mm:ss.SSS'Z'"]
+            for (String format : formats) {
+                try {
+                    Date date = new SimpleDateFormat(format).parse(value)
+                    return new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(date)
+                } catch (Exception e) {}
+            }
+        } else if (className.contains("Date")) {
+            def formats = ["yyyy-MM-dd", "yyyy/MM/dd", "yyyyMMdd", "yyyy.MM.dd", "dd-MM-yyyy", "dd/MM/yyyy", "dd.MM.yyyy"]
+            for (String format : formats) {
+                try {
+                    Date date = new SimpleDateFormat(format).parse(value)
+                    return new SimpleDateFormat("dd.MM.yyyy").format(date)
+                } catch (Exception e) {}
+            }
+        }
+        return value;
+    }
+
+    def sqlKeywordResolver(PetriNet petriNetObject, String fieldId) {
+        def className = petriNetObject.getDataSet().get(fieldId).getMetaClass().toString()
+        if (className.contains("Boolean")) {
+            return "booleanValue";
+        } else if (className.contains("Date")) {
+            return "timestampValue";
+        } else if (className.contains("Number")) {
+            return "numberValue";
+        }
+        return "fulltextValue.keyword";
+    }
+
+    def sqlTypeResolver(PetriNet petriNetObject, String fieldId) {
+        def className = petriNetObject.getDataSet().get(fieldId).getMetaClass().toString()
+        if (className.contains("Boolean")) {
+            return "boolean";
+        } else if (className.contains("DateTime")) {
+            return "dateTime";
+        } else if (className.contains("Date")) {
+            return "date";
+        } else if (className.contains("File")) {
+            return "file";
+        } else if (className.contains("Number")) {
+            return "number";
+        }
+        return "text";
     }
 
 }
