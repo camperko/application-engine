@@ -42,7 +42,6 @@ import com.netgrif.application.engine.workflow.service.interfaces.*
 import com.netgrif.application.engine.workflow.web.responsebodies.MessageResource
 import com.netgrif.application.engine.workflow.web.responsebodies.TaskReference
 import com.querydsl.core.types.Predicate
-import com.querydsl.core.types.dsl.ComparableExpression
 import groovy.transform.NamedVariant
 import org.bson.types.ObjectId
 import org.quartz.Scheduler
@@ -51,6 +50,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.i18n.LocaleContextHolder
 import org.springframework.core.io.ClassPathResource
+import org.springframework.core.io.FileSystemResource
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
@@ -1548,70 +1548,124 @@ class ActionDelegate {
         return new I18nString(value, translations)
     }
 
-    def sqlValueResolver(PetriNet petriNetObject, String fieldId, def value) {
+    private parseStringValue(String format, def value, boolean isSearch, String returnFormat) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat(format)
+            sdf.setLenient(false)
+            Date date = sdf.parse(value)
+            if (isSearch) {
+                return date.getTime()
+            }
+            return new SimpleDateFormat(returnFormat).format(date)
+        } catch (Exception e) {
+            return null
+        }
+    }
+
+    private parseDateValue(def value, boolean isSearch, String returnFormat) {
+        if (value instanceof Date) {
+            if (isSearch) {
+                return value.getTime()
+            }
+            return new SimpleDateFormat(returnFormat).format(value)
+        }
+        return null
+    }
+
+    private parseDateTime(def value, boolean isSearch) {
+        def parsedByDate = parseDateValue(value, isSearch, "dd.MM.yyyy HH:mm:ss")
+        if (parsedByDate != null) {
+            return parsedByDate
+        }
+        def dateFormats = ["yyyy-MM-dd ", "yyyy/MM/dd ", "yyyyMMdd ", "yyyy.MM.dd ", "yyyy-MM-dd'T'", "yyyy/MM/dd'T'", "yyyyMMdd'T'", "yyyy.MM.dd'T'",
+                           "dd-MM-yyyy ", "dd/MM/yyyy ", "dd.MM.yyyy ", "dd-MM-yyyy'T'", "dd/MM/yyyy'T", "dd.MM.yyyy'T"]
+        def timeFormats = ["HH:mm:ss", "HH:mm:ss.SSS", "HH:mm:ss'Z'", "HH:mm:ss.SSS'Z'"]
+        for (String dateFormat : dateFormats) {
+            for (String timeFormat : timeFormats) {
+                def parsedByString = parseStringValue(dateFormat + timeFormat, value, isSearch, "dd.MM.yyyy HH:mm:ss")
+                if (parsedByString != null) {
+                    return parsedByString
+                }
+            }
+        }
+        return null
+    }
+
+    private parseDate(def value, boolean isSearch) {
+        def parsedByDate = parseDateValue(value, isSearch, "dd.MM.yyyy")
+        if (parsedByDate != null) {
+            return parsedByDate
+        }
+        def formats = ["yyyy-MM-dd", "yyyy/MM/dd", "yyyyMMdd", "yyyy.MM.dd", "dd-MM-yyyy", "dd/MM/yyyy", "dd.MM.yyyy"]
+        for (String format : formats) {
+            def parsedByString = parseStringValue(format, value, isSearch, "dd.MM.yyyy")
+            if (parsedByString != null) {
+                return parsedByString
+            }
+        }
+        return null
+    }
+
+    def sqlValueResolver(PetriNet petriNetObject, String fieldId, def value, boolean isSearch = false) {
+        if (petriNetObject.getDataSet().get(fieldId) == null) {
+            return value
+        }
         def className = petriNetObject.getDataSet().get(fieldId).getMetaClass().toString()
         if (className.contains("Boolean")) {
             if (value == 'TRUE' || value == true || value == 'true' || value == 't' || value == '1' || value == 'y' || value == 'yes') {
-                return true;
+                return true
             }
-            return false;
+            return false
         } else if (className.contains("DateTime")) {
-            def formats = ["yyyy-MM-dd hh:mm:ss", "yyyy/MM/dd hh:mm:ss", "yyyyMMdd hh:mm:ss", "yyyy.MM.dd hh:mm:ss",
-                                         "yyyy-MM-dd hh:mm:ss.SSS", "yyyy/MM/dd hh:mm:ss.SSS", "yyyyMMdd hh:mm:ss.SSS", "yyyy.MM.dd hh:mm:ss.SSS",
-                                         "yyyy-MM-dd'T'hh:mm:ss", "yyyy/MM/dd'T'hh:mm:ss", "yyyyMMdd'T'hh:mm:ss", "yyyy.MM.dd'T'hh:mm:ss",
-                                         "yyyy-MM-dd'T'hh:mm:ss.SSS", "yyyy/MM/dd'T'hh:mm:ss.SSS", "yyyyMMdd'T'hh:mm:ss.SSS", "yyyy.MM.dd'T'hh:mm:ss.SSS",
-                                         "yyyy-MM-dd'T'hh:mm:ss'Z'", "yyyy/MM/dd'T'hh:mm:ss'Z'", "yyyyMMdd'T'hh:mm:ss'Z'", "yyyy.MM.dd'T'hh:mm:ss'Z'",
-                                         "yyyy-MM-dd'T'hh:mm:ss.SSS'Z'", "yyyy/MM/dd'T'hh:mm:ss.SSS'Z'", "yyyyMMdd'T'hh:mm:ss.SSS'Z'", "yyyy.MM.dd'T'hh:mm:ss.SSS'Z'",
-                                         "dd-MM-yyyy hh:mm:ss", "dd/MM/yyyy hh:mm:ss", "dd.MM.yyyy hh:mm:ss",
-                                         "dd-MM-yyyy hh:mm:ss.SSS", "dd/MM/yyyy hh:mm:ss.SSS", "dd.MM.yyyy hh:mm:ss.SSS",
-                                         "dd-MM-yyyy'T'hh:mm:ss", "dd/MM/yyyy'T'hh:mm:ss", "dd.MM.yyyy'T'hh:mm:ss",
-                                         "dd-MM-yyyy'T'hh:mm:ss.SSS", "dd/MM/yyyy'T'hh:mm:ss.SSS", "dd.MM.yyyy'T'hh:mm:ss.SSS",
-                                         "dd-MM-yyyy'T'hh:mm:ss'Z'", "dd/MM/yyyy'T'hh:mm:ss'Z'", "dd.MM.yyyy'T'hh:mm:ss'Z'",
-                                         "dd-MM-yyyy'T'hh:mm:ss.SSS'Z'", "dd/MM/yyyy'T'hh:mm:ss.SSS'Z'", "dd.MM.yyyy'T'hh:mm:ss.SSS'Z'"]
-            for (String format : formats) {
-                try {
-                    Date date = new SimpleDateFormat(format).parse(value)
-                    return new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(date)
-                } catch (Exception e) {}
+            def parseResult = parseDateTime(value, isSearch)
+            if (!parseResult) {
+                parseResult = parseDate(value, isSearch)
+                return !parseResult ? null : isSearch ? parseResult : parseResult + " 00:00:00"
             }
+            return parseResult
         } else if (className.contains("Date")) {
-            def formats = ["yyyy-MM-dd", "yyyy/MM/dd", "yyyyMMdd", "yyyy.MM.dd", "dd-MM-yyyy", "dd/MM/yyyy", "dd.MM.yyyy"]
-            for (String format : formats) {
-                try {
-                    Date date = new SimpleDateFormat(format).parse(value)
-                    return new SimpleDateFormat("dd.MM.yyyy").format(date)
-                } catch (Exception e) {}
+            def parseResult = parseDate(value, isSearch)
+            if (!parseResult) {
+                parseResult = parseDateTime(value, isSearch)
+                return !parseResult ? null : isSearch ? parseResult : parseResult.substring(0, 10)
             }
+            return parseResult
         }
         return value;
     }
 
     def sqlKeywordResolver(PetriNet petriNetObject, String fieldId) {
+        if (petriNetObject.getDataSet().get(fieldId) == null) {
+            return "fulltextValue.keyword"
+        }
         def className = petriNetObject.getDataSet().get(fieldId).getMetaClass().toString()
         if (className.contains("Boolean")) {
-            return "booleanValue";
+            return "booleanValue"
         } else if (className.contains("Date")) {
-            return "timestampValue";
+            return "timestampValue"
         } else if (className.contains("Number")) {
-            return "numberValue";
+            return "numberValue"
         }
-        return "fulltextValue.keyword";
+        return "fulltextValue.keyword"
     }
 
     def sqlTypeResolver(PetriNet petriNetObject, String fieldId) {
+        if (petriNetObject.getDataSet().get(fieldId) == null) {
+            return "text"
+        }
         def className = petriNetObject.getDataSet().get(fieldId).getMetaClass().toString()
         if (className.contains("Boolean")) {
-            return "boolean";
+            return "boolean"
         } else if (className.contains("DateTime")) {
-            return "dateTime";
+            return "dateTime"
         } else if (className.contains("Date")) {
-            return "date";
+            return "date"
         } else if (className.contains("File")) {
-            return "file";
+            return "file"
         } else if (className.contains("Number")) {
-            return "number";
+            return "number"
         }
-        return "text";
+        return "text"
     }
 
 }
