@@ -1140,4 +1140,8 @@ class ActionDelegate {
         return "text"
     }
 
+    public testJofo() {
+        findCasesElastic("processIdentifier:${useCase.petriNet.identifier}", org.springframework.data.domain.PageRequest.of(0, 1, org.springframework.data.domain.Sort.by("dataSet.f_orig_id.numberValue").descending()))
+    }
+
 }
