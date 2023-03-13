@@ -57,11 +57,6 @@ public class PreprocessorRegistrationService {
                     responseData.getBody().getAddress(), HttpMethod.POST, new HttpEntity<>(requestMap, headers), ByteArrayResource.class
             );
 
-            // TODO: throw error in importing
-            if (response.getStatusCode().equals(HttpStatus.NO_CONTENT)) {
-                return document;
-            }
-
             JAXBContext jaxbContext = JAXBContext.newInstance(Document.class);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             return (Document) jaxbUnmarshaller.unmarshal(new ByteArrayInputStream(response.getBody().getByteArray()));
